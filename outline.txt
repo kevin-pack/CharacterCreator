@@ -1,0 +1,31 @@
+CHARACTER CREATOR
+PATHFINDER ROLEPLAYING SYSTEM
+KEVIN PACK
+
+DICE (6)
+- d4
+- 4d6
+- d8
+- d% = d10 for ones + d10 for tens
+- d12
+- d20
+
+CLASSES (11) 
+https://www.d20pfsrd.com/classes/core-classes
+- Barbarian
+- Bard
+- Cleric
+- Druid
+- Fighter
+- Monk
+- Paladin
+- Ranger
+- Rogue
+- Sorcerer
+- Wizard 
+
+Would you rather roll for abilities or point buy?
+- how many points do you have?
+- determine ability scores
+
+
