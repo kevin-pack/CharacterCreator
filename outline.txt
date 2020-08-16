@@ -2,6 +2,16 @@ CHARACTER CREATOR
 PATHFINDER ROLEPLAYING SYSTEM
 KEVIN PACK
 
+Would you rather roll for abilities or point buy?
+Point buy:
+- how many points do you have?
+- determine ability scores
+
+Roll for abilities: 
+- standard: roll 4d6, discard the lowest number, and add the remaining three together. 
+- repeat until 6 numbers are generated
+- assign numbers to ability scores
+
 DICE (6)
 - d4
 - 4d6
@@ -24,8 +34,5 @@ https://www.d20pfsrd.com/classes/core-classes
 - Sorcerer
 - Wizard 
 
-Would you rather roll for abilities or point buy?
-- how many points do you have?
-- determine ability scores
 
 
