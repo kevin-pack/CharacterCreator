@@ -3,14 +3,16 @@
 #define DEFAULT_SCORE 10
 #define NUM_ABILITIES 6
 
-Hero::Hero() : abilities(NUM_ABILITIES) {}
+Hero::Hero() : abilities(NUM_ABILITIES, DEFAULT_SCORE) {}
 
 std::string Hero::getName(){
-    return name;
+    return this->name;
 }
-
+int Hero::getAbility(int index){
+    return this->abilities[index];
+}
 bool Hero::setAbility(int abilityIndex, int score){
-    if(score > 0){
+    if(score >= 7){
         this->abilities[abilityIndex] = score; 
         return true;
     }

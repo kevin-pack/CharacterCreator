@@ -10,10 +10,11 @@ class Hero{
     std::string getName();
     void setName(std::string);
     bool setAbility(int, int); // int1 - ability, int2 - score
-
+    int getAbility(int); // index 
+    
     private:
     std::string name;
-    std::vector<int> abilities; // 0 str, 1 dex, 2 con, 3 inf, 4 wis, 5 cha;
+    std::vector<int> abilities; // index 0 str, 1 dex, 2 con, 3 inf, 4 wis, 5 cha;
 };
 
 #endif
