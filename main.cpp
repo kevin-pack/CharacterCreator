@@ -5,6 +5,10 @@
 #include "Hero.h"
 
 #define INVALID_INPUT "Invalid input\n\a"
+#define ERR -5
+
+const std::vector<std::string> abilityNames = {"strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"};
+const std::vector<int> abilityCost = {ERR, ERR, ERR, ERR, ERR, ERR, ERR, -4, -2, -1, 0, 1, 2, 3, 5, 7, 10, 13, 17};
 
 void toLower(std::string &s){
     for(auto &i : s){
@@ -64,6 +68,52 @@ void getNumericInput(int &num){
     return;
 }
 
+int getAbilitySelection(Hero* newGuy){
+
+    int selection;
+
+    std::cout << "\nSelect an ability\n";
+    std::cout << "0. Strength           \n";
+    std::cout << "1. Dexterity          \n";
+    std::cout << "2. Constitution       \n";
+    std::cout << "3. Intelligence       \n";
+    std::cout << "4. Wisdom             \n";
+    std::cout << "5. Charisma           \n";           
+    std::cout << "6. View Cost Table    \n";
+    std::cout << "7. View ability scores\n";
+
+    do{
+        getNumericInput(selection);
+        if(selection == 6){
+            std::cout << "\n| Score | Cost | Modifier |\n";
+            std::cout << "|   7   |  -4  |    -2    |\n";
+            std::cout << "|   8   |  -2  |    -1    |\n";
+            std::cout << "|   9   |  -1  |    -1    |\n";
+            std::cout << "|  10   |   0  |     0    |\n";
+            std::cout << "|  11   |   1  |     0    |\n";
+            std::cout << "|  12   |   2  |    +1    |\n";
+            std::cout << "|  13   |   3  |    +1    |\n";
+            std::cout << "|  14   |   5  |    +2    |\n";
+            std::cout << "|  15   |   7  |    +2    |\n";
+            std::cout << "|  16   |  10  |    +3    |\n";
+            std::cout << "|  17   |  13  |    +3    |\n";
+            std::cout << "|  18   |  17  |    +4    |\n\n";        
+        }
+        else if(selection == 7){
+            std::cout << std::endl;
+            for(size_t i=0; i < 6; ++i){
+                std::cout << abilityNames[i] << ": " << newGuy->getAbility(i) << std::endl;
+            }
+            std::cout << std::endl;
+        }
+        if(selection > 7){
+            std::cout << "User must input a number 0 through 7\n\a";
+        }
+    } while(selection > 7);
+
+    return selection;
+}
+
 void pointBuy(Hero* newGuy){
     std::cout << "\nLow Fantasy:      10\n";
     std::cout << "Standard Fantasy: 15\n";
@@ -78,50 +128,42 @@ void pointBuy(Hero* newGuy){
     // get number of points
     getNumericInput(points);
     
-    int selection;
     int score;
-
-    std::cout << "\nSelect an ability\n";
-    std::cout << "0. Strength     \n";
-    std::cout << "1. Dexterity    \n";
-    std::cout << "2. Constitution \n";
-    std::cout << "3. Intelligence \n";
-    std::cout << "4. Wisdom       \n";
-    std::cout << "5. Charisma     \n";           
+    int selection;
+    
     do{
-    getNumericInput(selection);
+        std::cout << "\nPoints remaining: " << points << std::endl;
+        selection = getAbilitySelection(newGuy);
+        std::cout << "What score would you like to apply to " << abilityNames[selection] << "?" << std::endl;
 
-    std::string abilityStr = "What score would you like to apply to ";
+        getNumericInput(score);
 
-    switch(selection){
-        case 0:
-            abilityStr += "strength?\n";
-            break;
-        case 1:
-            abilityStr += "dexterity?\n";  
-            break;
-        case 2:
-            abilityStr += "constitution?\n";
-            break;
-        case 3:
-            abilityStr += "intelligence?\n";
-            break;
-        case 4:
-            abilityStr += "wisdom?\n";
-            break;
-        case 5:
-            abilityStr += "charisma?\n";
-            break;
-        default:
-            abilityStr = "Invalid input\n\a";
-    }
+        if(score < 7){
+            std::cout << "\nScore must be greater than or equal to 7 and less than or equal to 18\n\a";
+        }
+        else if(score > 18){
+            std::cout << "\nScore must be less than or equal to 18 and greater than or equal to 7\n\a";
+        }
+        else if(points - abilityCost[score] >= 0){
+            // if ability has already been changed, refund points
+            if(newGuy->getAbility(selection) != 10){
+                std::cout << "Refunding points\n";
+                points += abilityCost[newGuy->getAbility(selection)];
+            }
+            // set ability and deduct points
+            newGuy->setAbility(selection, score); 
+            std::cout << abilityNames[selection] << " ability score: " << newGuy->getAbility(selection) << std::endl;
+            points -= abilityCost[score];
+        }
+        else if (points - abilityCost[score] < 0){
+            std::cout << "\nYou don't have enough points!\n\a";
+        }
+        else{
+            std::cout << INVALID_INPUT;
+        }
+    } while(points > 0);
 
-    std::cout << abilityStr;
-
-    getNumericInput(score);
-    newGuy->setAbility(selection, score); 
-    std::cout << "ability score " << newGuy->getAbility(selection) << std::endl;
-    }while(1);
+    std::cout << "Ability scores assigned!\n";
 }
 
 void setNewName(Hero* newGuy){ // returns true if user wants to exit
@@ -183,7 +225,7 @@ int main(){
             std::cout << "I still need to code this part...\n";
         } // edit character
 
-        else if(input[0] != 'n'){
+        else if(input == "n" || input=="no"){
             std::cout << "Invalid input\n\a";
         }
     }while(true);
