@@ -1,14 +1,18 @@
+#include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 #include <string>
+#include <ctime>
 
 #include "Hero.h"
 
 #define INVALID_INPUT "Invalid input\n\a"
-#define ERR -5
+#define ERR -69
 
 const std::vector<std::string> abilityNames = {"strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"};
 const std::vector<int> abilityCost = {ERR, ERR, ERR, ERR, ERR, ERR, ERR, -4, -2, -1, 0, 1, 2, 3, 5, 7, 10, 13, 17};
+const std::vector<int> abilityModifier = {ERR, -5, -4, -4, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 4};
 
 void toLower(std::string &s){
     for(auto &i : s){
@@ -49,6 +53,22 @@ bool isNumeric(const std::string &s){
     return true;
 }
 
+void printAbilityTable(){
+    std::cout << "\n| Score | Cost | Modifier |\n";
+    std::cout << "|   7   |  -4  |    -2    |\n";
+    std::cout << "|   8   |  -2  |    -1    |\n";
+    std::cout << "|   9   |  -1  |    -1    |\n";
+    std::cout << "|  10   |   0  |     0    |\n";
+    std::cout << "|  11   |   1  |     0    |\n";
+    std::cout << "|  12   |   2  |    +1    |\n";
+    std::cout << "|  13   |   3  |    +1    |\n";
+    std::cout << "|  14   |   5  |    +2    |\n";
+    std::cout << "|  15   |   7  |    +2    |\n";
+    std::cout << "|  16   |  10  |    +3    |\n";
+    std::cout << "|  17   |  13  |    +3    |\n";
+    std::cout << "|  18   |  17  |    +4    |\n\n"; 
+}
+
 // checks if input is a number and checks if number is positive or 0
 void getNumericInput(int &num){ 
     std::string input;
@@ -85,19 +105,7 @@ int getAbilitySelection(Hero* newGuy){
     do{
         getNumericInput(selection);
         if(selection == 6){
-            std::cout << "\n| Score | Cost | Modifier |\n";
-            std::cout << "|   7   |  -4  |    -2    |\n";
-            std::cout << "|   8   |  -2  |    -1    |\n";
-            std::cout << "|   9   |  -1  |    -1    |\n";
-            std::cout << "|  10   |   0  |     0    |\n";
-            std::cout << "|  11   |   1  |     0    |\n";
-            std::cout << "|  12   |   2  |    +1    |\n";
-            std::cout << "|  13   |   3  |    +1    |\n";
-            std::cout << "|  14   |   5  |    +2    |\n";
-            std::cout << "|  15   |   7  |    +2    |\n";
-            std::cout << "|  16   |  10  |    +3    |\n";
-            std::cout << "|  17   |  13  |    +3    |\n";
-            std::cout << "|  18   |  17  |    +4    |\n\n";        
+            printAbilityTable();
         }
         else if(selection == 7){
             std::cout << std::endl;
@@ -113,12 +121,94 @@ int getAbilitySelection(Hero* newGuy){
 
     return selection;
 }
+void rollAbilities(Hero* newGuy){
+    // roll six dice
+    std::cout << "Rolling four dice for each ability, discarding the lowest roll, and adding the remaining three rolls together to determine your scores\n";
+    std::vector<int> randAbilities(6);
+    std::vector<int> nums(4);
+    int minNum=INT_MAX, score;
+    size_t minIndex;
+
+
+    for(size_t i=0; i < randAbilities.size(); ++i){
+        minNum=INT_MAX;
+        score = 0;
+        // get 4 random numbers
+        for(size_t j=0; j < nums.size(); ++j){
+            nums[j] = (rand() % 6) + 1;
+            //std::cout << nums[j] << std::endl;
+            if(nums[j] < minNum){
+                minNum = nums[j];
+                minIndex=j;
+                //std::cout << "minNum: " << nums[minIndex] << std::endl;
+            }
+        }
+        //std::cout << "---\n";
+        // discard lowest number
+        nums[minIndex]=0;
+        // add other numbers together and assign to list
+        for(size_t j=0; j < nums.size(); ++j){
+            score += nums[j];
+        }
+
+        if(score >= 7){ 
+            randAbilities[i] = score;
+        }
+        else{
+            randAbilities[i] = 7;
+        }
+    }
+    std::cout << "Ability scores   Modifier\n";
+    std::cout << "--------------   --------\n";
+    for(size_t i=0; i<randAbilities.size(); ++i){
+        std::cout << std::setw(13) << std::left << abilityNames[i] << randAbilities[i] << "     (" << abilityModifier[randAbilities[i]] << ")" << std::endl;
+    }
+
+    std::cout << "\nDo you want to re-assign these scores?\n";
+
+    std::string input;
+
+    getInput(input);
+    if(input[0] == 'y'){
+        bool doneAssigning = false;
+        int inputScore, abilityIndex=0;
+
+        while(!doneAssigning){
+            std::cout << "scores: ";
+            for(auto score : randAbilities){
+                std::cout << score << ", ";
+            }
+
+            std::cout << std::endl;
+            std::cout << abilityNames[abilityIndex] << " ";
+            getNumericInput(inputScore);
+
+            std::vector<int>::iterator numIter = std::find(randAbilities.begin(), randAbilities.end(), inputScore);
+
+            if(numIter != randAbilities.end()){
+                //std::cout << "Assigning " << inputScore << " to " << abilityNames[abilityIndex] << std::endl;
+                newGuy->setAbility(abilityIndex, inputScore);
+                randAbilities.erase(numIter);
+                abilityIndex++;
+            }
+            else{
+                std::cout << inputScore << " not found in list of ability scores generated.\n";
+            }
+
+            if(randAbilities.empty()){
+                doneAssigning = true;
+            }
+        }
+    }
+    else{
+        std::cout << "Leaving scores as-is\n";
+    }
+}
 
 void pointBuy(Hero* newGuy){
     std::cout << "\nLow Fantasy:      10\n";
     std::cout << "Standard Fantasy: 15\n";
     std::cout << "High Fantasy:     20\n";
-    std::cout << "Epic Fantasy:     25\n\n"; 
     std::cout << "How many points are you allotted?\n";
 
     std::string input;
@@ -179,11 +269,15 @@ void setNewName(Hero* newGuy){ // returns true if user wants to exit
 }
 
 int main(){ 
-    std::cout << "\nWelcome to Kevin's Character Creator\n"; 
+    // initialize random seed
+    srand(time(NULL));
+
+    std::cout << "\nWelcome to Pathfinder Character Creator\n"; 
     std::cout << "------------------------------------\n";
     std::cout << "enter exit if u want to exit\n\n";
 
     std::string input;
+    bool d0ne = false;
 
     do{
         std::cout << "Create new character or edit existing character?\n";
@@ -214,7 +308,7 @@ int main(){
 
             // roll for abilities
             else if(input.substr(0,4) == "roll"){
-                std::cout << "ROLL\n";
+                rollAbilities(newGuy);
             } // roll for abilities
         } // new character
 
@@ -225,9 +319,14 @@ int main(){
             std::cout << "I still need to code this part...\n";
         } // edit character
 
-        else if(input == "n" || input=="no"){
+        else{
             std::cout << "Invalid input\n\a";
         }
-    }while(true);
+        
+        std::cout << "Done?\n";
+        getInput(input);
+        d0ne = input[0] == 'y';
+
+    }while(!d0ne);
     return 0;
 }
